@@ -91,8 +91,8 @@ def test_join_some_successful_some_unsuccessful():
     joined = ValidationResult.join(results)
     assert joined.is_success is False
     assert len(joined.error_messages) == 2
-    assert ["First error"] in joined.error_messages
-    assert ["Second error"] in joined.error_messages
+    assert "First error" in joined.error_messages
+    assert "Second error" in joined.error_messages
 
 
 def test_join_all_unsuccessful():
@@ -104,9 +104,9 @@ def test_join_all_unsuccessful():
     joined = ValidationResult.join(results)
     assert joined.is_success is False
     assert len(joined.error_messages) == 3
-    assert ["Error 1"] in joined.error_messages
-    assert ["Error 2"] in joined.error_messages
-    assert ["Error 3"] in joined.error_messages
+    assert "Error 1" in joined.error_messages
+    assert "Error 2" in joined.error_messages
+    assert "Error 3" in joined.error_messages
 
 
 def test_join_empty_list():
@@ -127,7 +127,22 @@ def test_join_single_unsuccessful():
     results = [ValidationResult.error("Single error")]
     joined = ValidationResult.join(results)
     assert joined.is_success is False
-    assert ["Single error"] in joined.error_messages
+    assert "Single error" in joined.error_messages
+
+
+def test_joined_validation_result_can_raise_error():
+    """Test that joined validation results can be raised without TypeError."""
+    results = [
+        ValidationResult.error("First error"),
+        ValidationResult.error("Second error")
+    ]
+    joined = ValidationResult.join(results)
+    with pytest.raises(ValidationError) as exc_info:
+        joined.raise_if_error()
+    error_message = str(exc_info.value)
+    assert "Validation failed:" in error_message
+    assert "First error" in error_message
+    assert "Second error" in error_message
 
 
 def test_amount_validator_raises_on_too_large():

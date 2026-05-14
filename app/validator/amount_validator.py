@@ -30,7 +30,7 @@ class ValidationResult:
     def join(cls, results: list['ValidationResult']) -> 'ValidationResult':
         if all(result.is_success for result in results):
             return cls.success()
-        error_messages = [result.error_messages for result in results if not result.is_success]
+        error_messages = [msg for result in results if not result.is_success for msg in result.error_messages]
         return cls(success=False, error_messages=error_messages)
 
     def raise_if_error(self):
